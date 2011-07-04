@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>Robo 2 Flags (beta)</title>
+  <link rel="stylesheet" type="text/css" href="robo.css">
+  <script type="text/javascript">
+    var MSG = {
+    INCONSISTENT_USER_DATA:"Données inconsistentes",
+    INCORRECT_MAZE_ID:"Id niveau incorrect",
+    INCONSISTENT_USER_MAZE_DATA: "Données utilisateur-niveau inconsistentes",
+    NO_MAZE_OR_PUBMAZE_ID: "Id niveau ou niveau publié absent",
+    BOARD_DOES_NOT_EXIST: "Le circuit spécifié n'existe pas",
+    INCORRECT_CREDENTIALS: "Détails incorrects",
+    USERNAME_EXISTS: "Nom d'utilisateur déjà pris",
+    USER_DOES_NOT_OWN_MAZE: "Ce niveau ne vous appartient pas",
+    CANNOT_DELETE_MAZE: "Vous ne pouvez pas supprimer ce niveau",
+    MAZE_UNSOLVED: "Vous n'avez pas résolu ce niveau",
+    INCONSISTENT_SCORES: "Le score soumis ne correspond pas au score calculé sur le serveur",
+    DATABASE_ERROR: "Erreur de base de données",
+    
+    CONFIRM_PUBLISH: "Une fois que le niveau est publié il est impossible de le modifier ou de le supprimer.  Cliquez OK si vous voulez vraiment publier ce niveau maintenant.",
+    CONFIRM_DELETE: "Click OK to confirm you want to delete this maze",
+    CONFIRM_SAVE_WORKING_BOARD: "Vous êtes sur le point de sauvegarder ce circuit en tant que votre circuit de travail. Le circuit de travail précédent sera perdu. Cliquez OK pour confirmer.",
+    CONFIRM_LOAD_WORKING_BOARD: "Vous êtes sur le point de charger le circuit de travail.  Le circuit en cours sera perdu.  Cliquez OK pour confirmer.",
+    CONFIRM_LOAD_SOLUTION: "Vous êtes sur le point de charger votre meilleure solution pour ce niveau.  Le circuit en cours sera perdu.  Cliquez OK pour confirmer.",
+
+    MAZE_PUBLISHED: "niveau publié",
+    WORKING_BOARD_SAVED: "circuit de travail sauvegardé",
+    RATING_UPDATED: "note mise à jour",
+    MAZE_SAVED: "niveau sauvegardé",
+
+    LOADING_RANKINGS: "chargement du classement en cours",
+    LOADING_MAZES: "chargmeent des niveaux personnels en cours",
+    LOADING_PUBMAZES: "chargement des niveaux publiés en cours",
+    LOADING_OVERALL_RANKINGS: "chargement du classement général en cours",
+
+    CIRCUIT_BOARD_EDITOR: "Éditeur de circuit",
+    MAZES: "Mes niveaux",
+    PUBLISHED_MAZES: "Niveaux publiés",
+    OVERALL_RANKINGS: "Classement général",
+    NEWS: "News",
+    HELP: "Aide",
+    MAZE_PREVIEW: "Vue de niveau",
+    MAZE_EDITOR: "Éditeur de niveau",
+    MAZE_PLAYER: "Simulateur de niveau",
+    MAZE_RANKINGS: "Classement du niveau"
+    };
+  </script>
+  <script type="text/javascript" src="settings.js"></script>
+  <script type="text/javascript" src="json2.js"></script>
+  <script type="text/javascript" src="prototype.js"></script>
+  <script type="text/javascript" src="lib.js"></script>
+  <script type="text/javascript" src="request.js"></script>
+  <script type="text/javascript" src="maze.js"></script>
+  <script type="text/javascript" src="prog.js"></script>
+  <script type="text/javascript" src="run.js"></script>
+  <script type="text/javascript" src="robo.js"></script>
+</head>
+
+<body onload="init();">
+  <div id="body">
+    <div id="userinfo" >
+      <span id="userinfo-error"></span>
+      <div id="userinfo-login">
+        <b>Vous connecter</b>
+        <form id="login-form" action=".">
+	<table>
+          <tr>
+	    <td>Nom d'utilisateur</td><td><input type="text" name="username"></td>
+	  </tr>
+	  <tr>
+	    <td>Mot de passe</td><td><input type="password" name="pwd"></td>
+	  </tr>
+	  <tr>
+	    <td><input type="submit" value="login"></td>
+	    <td>Cliquez <a href="" id="register-button"> ici </a> pour vous inscrire</td>
+	  </tr>
+	</table>
+        </form>
+      </div>
+      <div id="userinfo-register" style="display: none">
+        <b>Vous inscrire</b>
+        <form id="register-form" action=".">
+	<table>
+	  <tr>
+	    <td>Nom d'utilisateur</td>
+	    <td><input type="text" name="username"></td>
+	  </tr>
+	  <tr>
+	    <td>Mot de passe</td>
+	    <td><input type="password" name="pwd"></td>
+	  </tr>
+	  <tr>
+	    <td><input type="submit" value="register"></td>
+	    <td>Cliquez <a href="" id="login-button">ici</a> pour vous connecter</td>
+	  </tr>
+	</table>
+        </form>
+      </div>
+      <div id="userinfo-info" style="display: none">
+        <b>Salut, <span id="userinfo-username"></span>!</b><br>
+        Cliquez <a href="" id="logout-button">ici</a> pour vous déconnecter
+      </div>
+    </div>
+    <div style="float:right; margin-right:10px">
+      <a style="color: #CCCCCC"href="robo.html">english</a>
+    </div>
+    <h1>Robot 2 Flags <span style="font-size: 70%; color: #CCCCCC">(beta)</span></h1>
+    <div style="color: #CCCCCC">Testé avec Safari 5.0+, Google Chrome 5.0+, Firefox 3.6+.  A few issues in Opera 10.6.  Ne marche pas sous Internet Explorer < 9.0.</div>
+
+    <div id="left-panel">
+      <div class="panel-buttons">
+	<span class="button" id="help-button">aide</span>
+	|
+	<span class="button" id="new-button">créer</span>
+	|
+        <span class="button" id="edit-button">éditer</span>
+        |
+        <span class="button" id="play-button">jouer</span>
+	|
+	<span class="button" id="rankings-button">classment</span>
+      </div>
+      <div class="title"></div>
+      <div class="content"></div>
+      <div id="maze-container" class="content" style="text-align: center;">
+        <canvas id="maze-canvas" width="404" height="404"></canvas>
+      </div>
+    </div>
+
+    <div id="right-panel">
+      <div class="panel-buttons">
+        <span class="button" id="news-button">news</span>
+        |
+        <span class="button" id="browsemy-button">mes niveaux</span>
+	|
+	<span class="button" id="browsepub-button">niveaux publiés</span>
+	|
+	<span class="button" id="overall-button">classement général</span>
+      </div>
+      <div class="title"></div>
+      <div class="content"></div>
+    </div>
+    <hr style="clear:both;">
+    <address></address>
+    <span style="color: #CCCCCC">arno AT marooned.org.uk.  Fait avec HTML Canvas & Javascript (client), Python (web.py) & Sqlite3 (serveur). <!-- hhmts start --> Last modified: Sat Aug 28 15:47:05 BST 2010 <!-- hhmts end --></span>
+  </div>
+  <!-- resources -->
+  <div id="resources" style="display:none">
+    <!-- circuit board editor / player -->
+    <div id="board">
+      <div id="boardtools" style="line-height:0px; margin: 5px;">
+	<div style="float:left;">
+        <canvas id="boardtool-trans" title="transition" width="30" height="60"></canvas>
+        <canvas id="boardtool-yestrans" title="oui-transition" width="30" height="60"></canvas>
+        <canvas id="boardtool-notrans" title="non-transition" width="30" height="60"></canvas>
+	</div>
+	<div style="float:left;">
+       <canvas id="boardtool-move" title="avancer" width="30" height="30"></canvas>
+        <canvas id="boardtool-left" title="tourner à droite" width="30" height="30"></canvas>
+        <canvas id="boardtool-right" title="tourner à gauche" width="30" height="30"></canvas>
+        <canvas id="boardtool-paintRed" title="Peindre le sol en jaune" width="30" height="30"></canvas> 
+        <canvas id="boardtool-paintYellow" title="Peindre le sol en rouge" width="30" height="30"></canvas> 
+        <canvas id="boardtool-paintBlue" title="Peindre le sol en bleu" width="30" height="30"></canvas><br> 
+        <canvas id="boardtool-wallp" title="mur en face?" width="30" height="30"></canvas>
+        <canvas id="boardtool-redp" title="sol rouge?" width="30" height="30"></canvas> 
+        <canvas id="boardtool-yellowp" title="sol jaune?" width="30" height="30"></canvas> 
+        <canvas id="boardtool-bluep" title="sol bleu?" width="30" height="30"></canvas>
+	</div>
+	
+	<div style="float:right; line-height:normal; display:none;" class="button" id="load-solution-button">Charger solution</div>
+	<div style="float:right; line-height:normal; display:none;" class="button" id="load-board-button">Charger circuit</div>
+	<div style="float:right; line-height:normal; display:none;" class="button" id="save-board-button">Sauver circuit</div>
+	<div>
+	  <canvas id="boardtool-del" title="gomme" width="30" height="30"></canvas><br>
+	  <canvas id="boardtool-clear" title="effacer le circuit" width="30" height="30"></canvas>
+	</div>
+     </div>
+      <div id="boardtools-deactivated" style="height:30px;text-align:center;padding:15px; text-decoration: italics;margin: 5px;">
+	Il est impossible d'éditer le circuit pendant que le robot est en route.<br>
+	Cliquez le bouton "recommencer" pour pouvoir l'éditer à nouveau.
+      </div>
+      <div style="text-align: center;">
+        <canvas id="board-canvas" width="540" height="480"></canvas>
+      </div>
+    </div>
+    <!-- list of working mazes -->
+    <div id="browse-mazes">
+     <table class="scrollable" style="width:100%;">
+	<thead>
+	  <tr>
+	    <td class="col-maze-title"><b>Niveau</b></td>
+	    <td class="col-maze-author"><b>Auteur</b></td>
+	    <td class="col-maze-description"><b>Description</b></td>
+	  </tr>
+	</thead>
+	<tbody id="mazelist" style="height:400px">
+	</tbody>
+      </table>
+   </div>
+    <!-- list of published mazes -->
+    <div id="browse-pubmazes">
+      <p>Selectionnez un niveau dans la liste ci-dessous pour le voir dans la fenêtre de gauche.  Cliquez le bouton rouge "jouer" pour programmer le robot.  Pour trier les niveaux selon un en-tête cliquez dessus.</p>
+     <table class="scrollable" style="width:100%;">
+	<thead>
+	  <tr>
+	    <td class="col-maze-title">
+	      <b id="sort-pubmaze-by-title" class="button" title="cliquez pour trier par ordre alphabétique">Niveau</b>
+	      <span id="sort-pubmaze-flag" style="width:0px;">&darr;</span>
+	    </td>
+	    <td class="col-maze-author">
+	      <b id="sort-pubmaze-by-author" class="button" title="cliquez pour trier par ordre alphabétique">Auteur</b>
+	    </td>
+	    <td class="col-maze-lowscore">
+	      <b id="sort-pubmaze-by-lowscore" class="button" title="cliquez pour trier par bas-score ">bas-score</b>
+	    </td>
+	    <td class="col-maze-score">
+	      <b id="sort-pubmaze-by-points" class="button" title="cliquez pour trier par points">Mes points</b>
+	    </td>
+	    <td class="col-maze-avgrating">
+	      <b id="sort-pubmaze-by-avgrating" class="button" title="cliquez pour trier par note">Note</b>
+	    </td>
+	    <td class="col-maze-pubdate">
+	      <b id="sort-pubmaze-by-pubdate" class="button" title="cliquez pour trier par date de publication">Date</b>
+	    </td>
+	  </tr>
+	</thead>
+	<tbody id="pubmazelist" style="height: 400px;">
+	</tbody>
+      </table>
+   </div>
+    <!-- overall rankings -->
+    <div id="overall">
+      <table class="scrollable" style="width:100%;">
+	<thead>
+	  <tr>
+	    <td class="col-rankings-rank">Rang</td>
+	    <td class="col-rankings-user">Utilisateur</td>
+	    <td class="col-rankings-points">Points</td>
+	    <td class="col-rankings-nsolved">Niveaux résolus</td>
+	  </tr>
+	</thead>
+	<tbody id="overall-table" style="height:400px;">
+	</tbody>
+      </table>
+    </div>
+    <!-- news -->
+    <div id="news" style="height: 400px; overflow: auto;">
+      <h4>18 September 2010</h4>
+      <p>Circuit board can now be saved. For each published maze a logged-in user can save a working board.  This is useful if your solution is not working quite right yet but you want to refine it later.  Moreover a user's best solution is now saved automatically as well.</p>
+      <p>Maze solutions are now checked on the server as well as in the browser.  Previously it was very easy to cheat, you just needed to send a well formed request with the desired score.</p>
+      <p>Some minor improvements to the UI.</p>
+      <h4>20 July 2010</h4>
+      <p>The circuit board editing tools are now hidden when the maze is playing.</p>
+      <p>Fixed a bug in the codepath highlighting routine.</p>
+      <h4>19 July 2010</h4>
+      <p>Added the news panel.</p>
+      <p>In the circuit board editor, changed the behaviour of the delete tool so that transitions can be deleted more easily (one can now go over them in any direction to delete them)</p>
+      <h4>18 July 2010</h4>
+      <p>In the list of published mazes, changed the column showing the user's best score to showing the user's points. This makes it easier for a user to find which mazes they don't have the lowest score in.</p>
+      <p>In the circuit board editor, changed the behaviour of the tools so that no assumption is made about the next tool a user is going to use.</p>
+      <h4>16 July 2010</h4>
+      <p>Fixed a bug which allowed a user to edit a circuit board while playing the maze.  It would have allowed cheating!</p>
+      <h4>13 July 2010</h4>
+      <p>The game is online at <a href='http://www.marooned.org.uk/robo'>http://www.marooned.org.uk/robo</a>.</p>
+    </div>
+    <!-- help -->
+    <div id="help" style="height: 400px; overflow: auto;">
+      <h3>Votre mission</h3>
+      Vous devez diriger un robot dans un labyrinthe de manière à récolter tous les drapeaux verts.  Mais, plutôt que de le diriger en temps réel, il vous faut concevoir son "programme" (sous la forme d'un circuit imprimé) en utilisant un certain nombre de puces.
+      <h3>Jouez</h3>
+      Cliquez sur le bouton "niveaux publiés" en haut du paneau de droite, selectionnez un niveaux dans la liste et cliquez "Jouer" en haut du paneau de gauche.  L'éditeur de circuit imprimé va apparaître dans le paneau de droite.  Vous pouvez alors construire votre circuit à l'aide des puces qui vont dans les cases du circuit imprimé et des flèches de transition qui joignent les cases contiguës.  Pour poser une puce, cliquez sur son icône et cliquez sur l'emplacement où vous voulez la poser.  Les puces doivent être reliées par des transitions, en partant de la puce "start here".  Quand vous êtes satisfait de votre circuit, cliquez sur le bouton "marche" au-dessus du niveau.  Le robot va alors suivre le programme du circuit imprimé.  Vous pouvez voir en rouge les instructions en cours.  Vous pouvez changer la vitesse du robot et même le voir évoluer pas-à-pas grace aux contrôles au-dessus du niveau.
+      <h3>Inscivez-vous et connectez-vous</h3>
+      Le paneau de connection et d'inscription se trouve dans le coin supérieur gauche de la page.  Une fois que vous êtes connecté, vos scores sont enregistrés sur le serveur et vous apparaissez dans le classement de chaque niveau et aussi dans le classement général.  Vous pouvez aussi créer vos propre niveaux.
+      <h3>Rivalisez</h3>
+      Quand vous résolvez un niveau, vous obtenez un score.  Votre but est d'obtenir le score le plus <i>bas</i> possible (en d'autres terms, un <i>bas-score</i>).  Votre score est calculé ainsi:
+      <ul>
+	<li>10 points par puce utilisée</li>
+	<li>1 point par unité de carburant consommée (1 unité est consommée pour chaque mouvement du robot et à chaque fois que le robot peint le sol)</li>
+      </ul>
+      Des points vous sont alloués selon votre score (de 0 point si vous n'avez pas résolu le niveau jusqu'à 1 point si vous êtes le tenant du bas-score).  La somme vos points pour chaque niveau determine votre position dans le classement général.
+      <h3>Concevez vos propres niveaux </h3>
+      Pour concevoir un niveau, cliquez "créer" en haut du paneau de gauche.  L'éditeur de niveaux va alors apparaître.  Vous pouvez y placer un robot et autant de drapeaux que vous le désirez, peindre le sol en rouge, bleu ou jaune et aussi placer des murs entre les case (en utiliser l'outil de sol - cliquez pour changer la couleur du sol ou ajouter/enlever un mur, glissez pour le faire pour tout un rectangle).
+      <h3>Publiez vos meilleurs niveaux</h3>
+      Si vous voulez faire profiter les autres d'un de vos meilleurs niveaux, vous devez d'abord le résoudre.  Une fois que celà est fait, un bouton "publier" apparaîtra en haut du paneau de gauche.  Il vous suffit de cliquer sur ce bouton pour publier le niveau.
+      <h3>Envoyez-moi vos suggestions</h3>
+      Ce projet est en cours de construction et j'apprécie toute suggestion que vous pouvez me donner!  Écrivez-moi à l'adresse suivante:  <i>arno AT marooned.org.uk</i>.
+      <h3>Amusez-vous!</h3>
+    </div>
+    <!-- preview maze -->
+    <div id="previewmaze">
+     <div class="maze-details">
+       <div id="delete-maze-button" class="button" style="float:right;">
+	 Effacer
+       </div>
+	<b id="preview-title"></b>:<span id="preview-description"></span>
+      </div>
+    </div>
+    <!-- edit maze -->
+    <div id="editmaze">
+      <div>
+        <form id="mazeinfo-form" action=".">
+	<div style="float:left; text-align:center">
+          <b>titre</b><br>
+	  <input type="text" maxlength="30" name="title"><br>
+          <input id="save-button" type="submit" value="Sauvegarder">
+	</div>
+	<div style="float:right; text-align:center">
+	  <b>description</b><br>
+	  <textarea rows="3" cols="30" name="description"></textarea><br>
+	</div>
+       </form>
+      </div>
+      <div style="clear:both;">
+        <canvas id="mazetool-paint" title="peindre sol / éditer murs" width="40" height="40"></canvas>
+        <canvas id="mazetool-robot" title="placer un robot" width="40" height="40"></canvas>
+        <canvas id="mazetool-flag" title="placer un drapeau" width="40" height="40"></canvas>
+        <canvas id="mazetool-remove" title="enlever un objet" width="40" height="40"></canvas>
+        <canvas id="mazetool-rotate" title="tourner un objet" width="40" height="40"></canvas>
+     </div>
+    </div>
+    <!-- run maze -->
+    <div id="runmaze">
+     <div id="rating-score">
+	Votre bas-score:<span id="lowscore"></span>
+	<form id="rating-form">Votre note:
+	<select name="rating">
+	  <option value="null">non noté</option>
+	  <option value="1">1 - nul</option>
+	  <option value="2">2 - pas super</option>
+	  <option value="3">3 - bien</option>
+	  <option value="4">4 - très bien</option>
+	  <option value="5">5 - excellent</option>
+	</select>
+	</form>
+      </div>
+      <div class="maze-details">
+        <b id="maze-title"></b>:<span id="maze-description"></span>
+      </div>
+      <div id="maze-controls">
+        <div style="float:right;" id="publish-button" class="button">publier niveau</div>
+	<div style="float:right; text-align:center;">
+	  <canvas id="run-speed" title="ajuster la vitesse du robot" width="40" height="20"></canvas><br><span style="font-size:80%;">speed
+	</div>
+	<canvas id="run-start" title="recommencer" class="button" width="40" height="40"></canvas>
+	<canvas id="run-step" title="pas-à-pas" class="button" width="40" height="40"></canvas>
+	<canvas id="run-play" title="marche" class="button" width="40" height="40"></canvas>
+     </div>
+
+    </div>
+    <!-- maze rankings -->
+    <div id="rankings">
+      <table class="scrollable" style="width:100%;">
+	<thead>
+	  <tr>
+	    <td class="col-rankings-rank">Rang</td>
+	    <td class="col-rankings-user">Utilisateur</td>
+	    <td class="col-rankings-score">Score</td>
+	    <td class="col-rankings-points">Points</td>
+	  </tr>
+	</thead>
+	<tbody id="rankings-table" style="height: 400px;">
+	</tbody>
+      </table>
+    </div>
+    <!-- loading maze -->
+    <div id="loadingmaze">
+      <div class="loading-msg">Chargement du niveau en cours</div>
+    </div>
+  </div>
+  <div id="hidden-elements" style="display:none"></div>
+</body>
+
+</html>
