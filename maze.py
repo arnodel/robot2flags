@@ -66,6 +66,7 @@ class Maze(object):
         maze.vwalls = json_maze["vwalls"]
         maze.objects = []
         maze.obj_count = defaultdict(int)
+        maze.costs = json_maze.get("costs", {"chip": 10, "step": 1})
         for json_obj in json_maze["objects"]:
             maze.add_object(MazeObject.fromJSON(json_obj))
         return maze
@@ -309,7 +310,7 @@ class CircuitBoard(object):
     def cost(self, chip_prices=None, trans_prices=None):
         cost = 0
         if chip_prices:
-            default = chip_prices.get("all", 0)
+            default = chip_prices.get("chip", 0)
             for x, y, chip in enum_matrix(self.chips):
                 if chip.name != "nochip":
                     cost += chip_prices.get(chip.name, default)

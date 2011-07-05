@@ -134,7 +134,7 @@ def submitscore(mazeid, user, score, solution=None):
         time = run_maze(maze, board)
     except MazeRunError, e:
         return {"error": e.args[0]}
-    server_score = board.cost({"all":10}) + time
+    server_score = board.cost(maze.costs) + time*maze.costs["step"]
     if score != server_score:
         return {"error": "INCONSISTENT_SCORES"}
     r = web.ctx.db.where("usermazedata", what="score", user=user, maze=mazeid)

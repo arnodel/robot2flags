@@ -20,6 +20,7 @@ module.register("robo.maze", function (m) {
 	    var maze = m.genericMaze.specialise({
 		width: this.width,
 		height: this.height,
+		costs: {},
 		_hwalls: copy_matrix(this._hwalls),
 		_vwalls: copy_matrix(this._vwalls),
 		_floors: copy_matrix(this._floors),
@@ -29,6 +30,9 @@ module.register("robo.maze", function (m) {
 	    this.loopObjects(function(obj) {
 		maze.addObject(obj.copy());
 	    });
+	    this.costs.loopItems(function (item, cost) {
+		maze.costs[item] = cost;
+	    });
 	    return maze;
 	},
 	create: function (width, height) {
@@ -36,6 +40,7 @@ module.register("robo.maze", function (m) {
 	    return m.genericMaze.specialise({
 		width: width,
 		height: height,
+		costs: {chip: 10, step: 1},
 		_floors: make_matrix(width, height, 0),
 		_hwalls: make_matrix(width, height + 1, 0),
 		_vwalls: make_matrix(width + 1, height, 0),
@@ -176,6 +181,7 @@ module.register("robo.maze", function (m) {
 	//
 	toJSON: function () {
 	    return {
+		costs: this.costs,
 		floors: this._floors,
 		hwalls: this._hwalls,
 		vwalls: this._vwalls,
@@ -187,9 +193,11 @@ module.register("robo.maze", function (m) {
 	fromJSON: function (jsonMaze) {
 	    var height = jsonMaze.floors.length;
 	    var width = jsonMaze.floors[0].length;
+	    var costs = jsonMaze.costs || {chip: 10, step: 1};
 	    var maze = this.specialise({
 		width: width,
 		height: height,
+		costs: costs,
 		_floors: jsonMaze.floors,
 		_hwalls: jsonMaze.hwalls,
 		_vwalls: jsonMaze.vwalls,

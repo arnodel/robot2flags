@@ -409,6 +409,8 @@ var init = function() {
 	    setContent("editmaze");
         $("mazeinfo-form").title.value = mazeInfo.info.title;
         $("mazeinfo-form").description.value = mazeInfo.info.description;
+	$("mazeinfo-form").chipcost.value = maze.costs.chip;
+	$("mazeinfo-form").stepcost.value = maze.costs.step;
 	mazeEditor.activate();
 	showMaze();
     });
@@ -419,6 +421,8 @@ var init = function() {
 	    setContent("runmaze");
 	$("maze-title").innerHTML = mazeInfo.info.title;
 	$("maze-description").innerHTML = mazeInfo.info.description;
+	$("maze-chipcost").innerHTML = maze.costs.chip;
+	$("maze-stepcost").innerHTML = maze.costs.step;
 	/*if (mazeInfo.info.type === "pubmaze" && user.username) {
 	    showBlock("rating-score");
 	    $("lowscore").innerHTML = mazeInfo.info.score || "none";
@@ -535,7 +539,7 @@ var init = function() {
 	if (user.username && mazeInfo.info.type === "maze") {
 	    showBlock("publish-button");
 	}
-	var score = board.cost({all:10}) + run.time;
+	var score = board.cost(maze.costs) + run.time*maze.costs.step;
 	mazeInfo.info.score = score;
 	if (user.username && mazeInfo.info.type === "pubmaze") {
 	    JR.submitScore().
@@ -664,7 +668,21 @@ var init = function() {
 	    mazeInfo.info.description = ev.target.value;
 	}).
 	send();
+    
+    request.
+	event($("mazeinfo-form").chipcost, "change").
+	success(function (ev) {
+	    maze.costs.chip = parseInt(ev.target.value);
+	}).
+	send();
 
+    request.
+	event($("mazeinfo-form").stepcost, "change").
+	success(function (ev) {
+	    maze.costs.step = parseInt(ev.target.value);
+	}).
+	send();
+    
     //
     // user management
     //
