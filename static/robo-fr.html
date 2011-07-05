@@ -310,6 +310,30 @@
 	  <b>description</b><br>
 	  <textarea rows="3" cols="30" name="description"></textarea><br>
 	</div>
+	<div style="clear: both;">
+	  Une puce coûte:
+	  <select name="chipcost">
+	    <option value="0">Rien</option>
+	    <option value="1">1</option>
+	    <option value="2">2</option>
+	    <option value="5">5</option>
+	    <option value="10" selected="selected">10</option>
+	    <option value="20">20</option>
+	    <option value="50">50</option>
+	    <option value="100">100</option>
+	  </select>
+	  Un pas coûte:
+	  <select name="stepcost">
+	    <option value="0">Rien</option>
+	    <option value="1" selected="selected">1</option>
+	    <option value="2">2</option>
+	    <option value="5">5</option>
+	    <option value="10">10</option>
+	    <option value="20">20</option>
+	    <option value="50">50</option>
+	    <option value="100">100</option>
+	  </select>
+	</div>
        </form>
       </div>
       <div style="clear:both;">
@@ -336,7 +360,8 @@
 	</form>
       </div>
       <div class="maze-details">
-        <b id="maze-title"></b>:<span id="maze-description"></span>
+        <b id="maze-title"></b>:<span id="maze-description"></span><br/>
+	Une puce coûte <span id="maze-chipcost"></span>, un pas coûte <span id="maze-stepcost">.
       </div>
       <div id="maze-controls">
         <div style="float:right;" id="publish-button" class="button">publier niveau</div>
