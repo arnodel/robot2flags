@@ -304,12 +304,36 @@
         <form id="mazeinfo-form" action=".">
 	<div style="float:left; text-align:center">
           <b>title</b><br>
-	  <input type="text" maxlength="30" name="title"><br>
+	  <input type="text" maxlength="30" name="title"><br/>
           <input id="save-button" type="submit" value="Save maze">
 	</div>
 	<div style="float:right; text-align:center">
 	  <b>description</b><br>
 	  <textarea rows="3" cols="30" name="description"></textarea><br>
+	</div>
+	<div style="clear: both;">
+	  Chip cost:
+	  <select name="chipcost">
+	    <option value="0">Free</option>
+	    <option value="1">1</option>
+	    <option value="2">2</option>
+	    <option value="5">5</option>
+	    <option value="10" selected="selected">10</option>
+	    <option value="20">20</option>
+	    <option value="50">50</option>
+	    <option value="100">100</option>
+	  </select>
+	  Move cost:
+	  <select name="stepcost">
+	    <option value="0">Free</option>
+	    <option value="1" selected="selected">1</option>
+	    <option value="2">2</option>
+	    <option value="5">5</option>
+	    <option value="10">10</option>
+	    <option value="20">20</option>
+	    <option value="50">50</option>
+	    <option value="100">100</option>
+	  </select>
 	</div>
        </form>
       </div>
@@ -337,7 +361,8 @@
 	</form>
       </div>
       <div class="maze-details">
-        <b id="maze-title"></b>:<span id="maze-description"></span>
+        <b id="maze-title"></b>:<span id="maze-description"></span><br/>
+	Chip cost: <span id="maze-chipcost"></span>, move cost: <span id="maze-stepcost">
       </div>
       <div id="maze-controls">
         <div style="float:right;" id="publish-button" class="button">publish maze</div>

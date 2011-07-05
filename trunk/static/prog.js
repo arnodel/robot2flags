@@ -228,7 +228,7 @@ module.register("robo.prog", function (m) {
 	    if (chipPrices) {
 		this.loop(function (loc, chip) {
 		    if (chip.name !== "nochip") {
-			cost += chipPrices[chip.name] || chipPrices.all;
+			cost += chipPrices[chip.name] || chipPrices.chip;
 		    }
 		});
 	    };
