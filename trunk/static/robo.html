@@ -109,7 +109,9 @@
     </div>
     <h1>Robot 2 Flags <span style="font-size: 70%; color: #CCCCCC">(beta)</span></h1>
     <div style="color: #CCCCCC">Tested in Safari 5.0, Google Chrome 5.0, Firefox 3.6.  A few issues in Opera 10.6.  Untested in Internet Explorer.</div>
-
+    <div style="margin-top: 3px;">
+      <span style="color: black; background-color: white; border-radius: 5px; padding: 2px;"><span style="color: red; font-weight: bold;">New:</span> to keep competition fair, published mazes now need to be approved. Publish only once and be patient!</span>
+    </div>
     <div id="left-panel">
       <div class="panel-buttons">
 	<span class="button" id="help-button">help</span>
@@ -361,11 +363,21 @@
 	  <option value="5">5 - great</option>
 	</select>
 	</form>
-      </div>
-      <div class="maze-details">
-        <b id="maze-title"></b>:<span id="maze-description"></span><br/>
-	Chip cost: <span id="maze-chipcost"></span>, move cost: <span id="maze-stepcost">
-      </div>
+     </div>
+     <div id="moderate">
+       <select id="moderate-decision">
+	 <option value="NONE" disabled="disabled" selected="selected">Choose moderation</option>
+	 <option value="ACCEPT">Accept maze</option>
+	 <option value="IMPROVE">Needs improvement</option>
+	 <option value="REJECT">Reject maze</option>
+       </select>
+       <input id="moderate-submit" type="button" value="Submit"/><br/>
+       <textarea id="moderate-comment" style="height: 3em">Enter comment here</textarea>
+     </div>
+     <div class="maze-details">
+       <b id="maze-title"></b>:<span id="maze-description"></span><br/>
+       Chip cost: <span id="maze-chipcost"></span>, move cost: <span id="maze-stepcost">
+     </div>
       <div id="maze-controls">
         <div style="float:right;" id="publish-button" class="button">publish maze</div>
 	<div style="float:right; text-align:center;">

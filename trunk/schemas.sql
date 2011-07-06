@@ -77,13 +77,14 @@ CREATE VIEW published_data AS
               m.owner AS author,
               l.lowscore AS lowscore,
               d.score AS score,
+	      m.moderated_by as moderated_by,
 	      
               r.sumratings AS sumratings,
               r.avgrating AS avgrating,
               r.countratings AS countratings 
        FROM published_mazes m 
        JOIN users u LEFT JOIN usermazedata d
-       ON m.id = d.maze AND u.username = d.user 
+       ON m.id = d.maze AND u.username = d.user
        LEFT JOIN lowscores l 
        ON m.id=l.maze 
        LEFT JOIN mazeratings r
@@ -92,3 +93,8 @@ CREATE VIEW published_data AS
 --- Alterations to add board saving facility
 
 alter table usermazedata add column solution text;
+
+--- Alterations to add moderating facility
+
+alter table users add column moderator integer default 0;
+alter table published_mazes add column moderated_by references users(username);
