@@ -23,6 +23,7 @@ def webjsondata():
 urls = (
     '/', 'root',
     '/json/', 'jsonfunc',
+    '/confirm/', 'confirm_email',
     )
 
 app = web.application(urls, globals())
@@ -89,6 +90,25 @@ class jsonfunc:
             if settings.SLOW_RESPONSE:
                 sleep(settings.SLOW_RESPONSE)
         return json.dumps(res)
+
+class confirm_email:
+    def GET(self):
+        try:
+            token = web.input().token
+        except AttributeError:
+            return "Invalid token"
+        r = web.ctx.db.where("email_tokens", token=token)
+        for row in r:
+            r = web.ctx.db.update("users",
+                              vars={'user': row.user}, 
+                              where="username=$user",
+                              email=row.email)
+            r = web.ctx.db.delete("email_tokens",
+                                  vars={'token': token},
+                                  where="token=$token")
+            return "Robot2Flags\n===========\nUser: %s\nEmail: %s\nThank you for registering your email" % (row.user, row.email)
+        return "Invalid token"
+
 
 # Uncomment this to use the fast-cgi server
 # web.wsgi.runwsgi = lambda func, addr=None: web.wsgi.runfcgi(func, addr)

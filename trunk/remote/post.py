@@ -1,4 +1,5 @@
 import web
+import time
 
 try:
     import json
@@ -232,3 +233,29 @@ def moderate(user, mazeid, decision, comment):
     if not r:
         return {"error": "MAZE_ALREADY_MODERATED"}
     return {"status": decision}
+
+@checkuser
+def setemail(user, email):
+    # Create a randomish token
+    token = hashlib.md5(str(time.time())).hexdigest()
+    print "token", token
+    web.ctx.db.insert("email_tokens",
+                   token=token,
+                   user=user,
+                   email=email)
+    token_addr = web.ctx.home + "/confirm/?token=" + token
+    web.sendmail('arno@marooned.org.uk', [email], '[robot2flags] Request to link email to account',
+"""Hi,
+
+It appears you have requested to link your robot2flags account '%s'
+to this email address (%s).
+
+To confirm, follow this link:
+
+    %s
+
+You can safely ignore this message if you have not made this request.
+
+Please email arno@marooned.org.uk if you have problems or queries.
+""" % (user, email, token_addr))
+    return {"status": "OK"}

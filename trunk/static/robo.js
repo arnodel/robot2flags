@@ -125,6 +125,12 @@ var init = function() {
 		comment: $("moderate-comment").value
 	    });
 	},
+	setUserEmail: function (email) {
+	    return request.jsonPOST("setemail", {
+		user: user.username,
+		email: email
+	    });
+	},
 	//
 	// GET requests
 	//
@@ -795,7 +801,18 @@ var init = function() {
 		  });*/
 	    }).
 	    send();
-
+	
+	request.
+	    event("setemail-button", "click").
+	    success(function (ev) {
+		ev.preventDefault();
+		var email = prompt("Please enter your email address.  An email will be sent to this address for confirmation.");
+		if (email) {
+		    JR.setUserEmail(email).send();
+		}
+	    }).
+	    send();
+	
 	request.
 	    event(registerform, "submit").
 	    success(function(ev) {
