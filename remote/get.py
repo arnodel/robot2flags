@@ -12,7 +12,6 @@ def mazelist():
     return [dict(s) for s in r]
 
 def getmaze(id):
-    fields = "id", "title", "description", "owner", "data"
     r = web.ctx.db.where("mazes", id=id)
     if not r:
         return {"error": "INCORRECT_MAZE_ID"}
@@ -21,14 +20,24 @@ def getmaze(id):
 
 def publishedmazelist():
     user = getattr(web.ctx.session, "username", "anon")
-    r = web.ctx.db.where("published_data", user=user)
+    moderator = getattr(web.ctx.session, "moderator", 0)
+    print "moderator", moderator
+    if moderator:
+        r = web.ctx.db.where("published_data", user=user)
+    else:
+        r = web.ctx.db.select("published_data", {"user":user},
+                where="user=$user AND moderated_by IS NOT NULL")        
     return [dict(s) for s in r]
 
 def getpublishedmaze(id):
-    fields = "id", "title", "description", "owner", "data"
+    fields = "id", "title", "description", "owner", "data", "moderated_by"
+    moderator = getattr(web.ctx.session, "moderator", 0)
+    where_clause = "id=$id"
+    if not moderator:
+        where_clause += " and moderated_by is not null"
     r = web.ctx.db.select("published_mazes", {"id": id},
             what=",".join(fields),
-            where="id=$id")
+            where=where_clause)
     if not r:
         return {"error": "INCORRECT_MAZE_ID"}
     for l in r:

@@ -34,13 +34,13 @@ var init = function() {
     var run_btns = robo.run.runButtons("run-", run, boardeditor);
 
     // User details
-    var user = {username:null};
+    var user = {username: null};
 
     // State object
 
     var roboStateSpace = stateSpace.specialise().init();
     roboStateSpace.addAxis("user", ["anonymous", "logged-on"]);
-    roboStateSpace.addAxis("maze", ["new", "saved", "published"]);
+    roboStateSpace.addAxis("maze", ["new", "saved", "unmoderated", "published"]);
     roboStateSpace.addAxis("leftPanel", [
 	"help", "preview", "preview-loading", "edit", "run", "rankings"
     ]);
@@ -116,6 +116,14 @@ var init = function() {
 	    };
 	    args[mazeInfo.info.type] = mazeInfo.info.id;
 	    return request.jsonPOST("saveboard", args);
+	},
+	moderateMaze: function () {
+	    return request.jsonPOST("moderate", {
+		user: user.username,
+		mazeid: mazeInfo.info.id,
+		decision: $("moderate-decision").value,
+		comment: $("moderate-comment").value
+	    });
 	},
 	//
 	// GET requests
@@ -374,7 +382,16 @@ var init = function() {
     // Left panel
     //
 
-    var leftPanel = pane.specialise().init("left-panel");
+    var leftPanel = pane.specialise({
+	newMaze: function () {
+	    mazeInfo.reset();
+	    maze = robo.maze.genericMaze.create(10, 10);
+	    mazeEditor.setMaze(maze);
+	    mazeEditor.activate();
+	    mazeEditor.paint();
+	    roboState.mutate({leftPanel: "edit"});
+	}
+    }).init("left-panel");
 
     roboStateSpace.addEnterAction({leftPanel: "help"}, function () {
 	leftPanel.
@@ -478,14 +495,7 @@ var init = function() {
 
     request.
 	event("new-button", "click").
-	success(function () {
-	    mazeInfo.reset();
-	    maze = robo.maze.genericMaze.create(10, 10);
-	    mazeEditor.setMaze(maze);
-	    mazeEditor.activate();
-	    mazeEditor.paint();
-	    roboState.mutate({leftPanel: "edit"});
-	}).
+	success(leftPanel.newMaze).
 	send();
 
     request.
@@ -529,7 +539,43 @@ var init = function() {
 	    roboState.mutate({leftPanel: "rankings"});
 	}).
 	send();
-
+    
+    //
+    // Maze moderation
+    //
+    
+    request.
+	event("moderate-submit", "click").
+	continue_if(function () {
+	    if ($("moderate-decision").value === "NONE" || !$("moderate-comment").value) {
+		errorAlert({'error': 'SELECT_DECISION_AND_WRITE_COMMENT'})
+		return false;
+	    }
+	    return true;
+	}).
+	then(JR.moderateMaze).
+	success(function (result) {
+	    switch (result.status) {
+	    case "ACCEPT":
+		roboState.mutate({maze: "published"});
+		successAlert("MAZE_ACCEPTED")();
+		break;
+	    case "REJECT":
+		leftPanel.newMaze();
+		successAlert("MAZE_REJECTED")();
+		break
+	    case "IMPROVE":
+		leftPanel.newMaze();
+		successAlert("IMPROVEMENT_REQUESTED")();
+		break
+	    }
+	    pubMazeList.load().
+		success(updatePubMazeList).
+		send();
+	}).
+	error(errorAlert).
+	send();
+    
     //
     // Callback functions called when playing a maze and an outcome has
     // been reached.
@@ -760,7 +806,7 @@ var init = function() {
 		}, function(res) {
 		    registerform.reset();
 		    user = res;
-		draw_userinfo(res);
+		    draw_userinfo(res);
 		});
 	    }).
 	    send();
@@ -795,7 +841,8 @@ var init = function() {
 		    "save-board-button",
 		    "delete-maze-button",
 		    "load-solution-button",
-		    "rating-score");
+		    "rating-score",
+		    "moderate");
     });
 
     roboStateSpace.addEnterAction({
@@ -849,6 +896,20 @@ var init = function() {
 		    "rating-score");
     });
 
+    roboStateSpace.addEnterAction({
+	maze: "unmoderated"
+    }, function () {
+	if (user.moderator) {
+	    showBlock("moderate");
+	}
+    });
+
+    roboStateSpace.addLeaveAction({
+	maze: "unmoderated"
+    }, function () {
+	hideElement("moderate");
+    });
+    
     var mazeInfo = {
 	info: {type: "maze", title:"", description:"", id:null},
 	reset: function () {
@@ -909,7 +970,11 @@ var init = function() {
 		    info.type = "pubmaze";
 		    self.info = info;
 		    delete self.loadRequest;
-		    roboState.mutate({maze: "published"});
+		    if (info.moderated_by) {
+			roboState.mutate({maze: "published"});
+		    } else {
+			roboState.mutate({maze: "unmoderated"});
+		    }
 		});
 	    return this.loadRequest;
 	},
@@ -1033,10 +1098,10 @@ var init = function() {
 	var btnid = function(info) { return "pubmazebtn-" + info.maze; };
 	$("pubmazelist").innerHTML = "";
 	pubMazeList.list.loop(function(info, i) {
-	    var edit_btn = span(
-		{"class":"button", id:btnid(info)},
-		info.title
-	    );
+	    var edit_btn = span({
+		"class": info.moderated_by ? "button" : "button-attn",
+		 id:btnid(info)
+	    },info.title);
 	    var rating = info.avgrating ? info.avgrating.toFixed(1) : "-";
 	    var lowscore = info.lowscore ? info.lowscore.toString() : "-";
 	    var score = info.score ? info.score.toString() : "-";

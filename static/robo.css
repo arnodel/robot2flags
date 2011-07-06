@@ -56,7 +56,7 @@ canvas {
     margin: 5px;
 }
 
-#rating-score {
+#rating-score, #moderate {
     float: right;
     margin: 5px;
     padding: 2px;
@@ -144,6 +144,11 @@ div.maze-details {
 
 .button {
     color: blue;
+    cursor: pointer;
+}
+
+.button-attn {
+    color: red;
     cursor: pointer;
 }
 

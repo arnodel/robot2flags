@@ -25,14 +25,19 @@ def login(username, pwd):
         {"username": username, "pwd": hashpwd(pwd)},
         where="username=$username AND pwd=$pwd")
     if r:
+        for row in r:
+            moderator = row.moderator
         web.ctx.session.username = username
-        return {"username": username}
+        web.ctx.session.moderator = moderator;
+        return {"username": username, "moderator": moderator}
     else:
         return {"error": "INCORRECT_CREDENTIALS"}
 
 def logout():
     if hasattr(web.ctx.session, "username"):
         del web.ctx.session.username
+    if hasattr(web.ctx.session, "moderator"):
+        del web.ctx.session.moderator
     return {"username": None}
 
 def register(username, pwd):
@@ -202,3 +207,28 @@ def saveboard(user, board, title, maze=None, pubmaze=None):
         pubmaze=pubmaze
     )
     return {}
+
+@checkuser
+def moderate(user, mazeid, decision, comment):
+    if not web.ctx.session.moderator:
+        return {"error": "USER_MUST_BE_MODERATOR"}
+    r = web.ctx.db.where("published_mazes", id=mazeid)
+    # Return error if maze has already been moderated or removed
+    for row in r:
+        if row.moderated_by is None:
+            break
+    else:
+        return {"error": "MAZE_ALREADY_MODERATED"}
+    maze_info = dict(row)
+    if decision == "ACCEPT":
+        r = web.ctx.db.update("published_mazes",
+                vars={"id": mazeid},
+                where="id=$id",
+                moderated_by=web.ctx.session.username)
+    elif decision == "REJECT" or decision == "IMPROVE":
+        r = web.ctx.db.delete("published_mazes", 
+                vars={"id": mazeid},
+                where="id=$id")
+    if not r:
+        return {"error": "MAZE_ALREADY_MODERATED"}
+    return {"status": decision}
