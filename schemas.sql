@@ -77,7 +77,7 @@ CREATE VIEW published_data AS
               m.owner AS author,
               l.lowscore AS lowscore,
               d.score AS score,
-	      m.moderated_by as moderated_by,
+	      m.moderated_by as moderated_by, --- Addition to enable moderation
 	      
               r.sumratings AS sumratings,
               r.avgrating AS avgrating,
@@ -92,9 +92,19 @@ CREATE VIEW published_data AS
 
 --- Alterations to add board saving facility
 
-alter table usermazedata add column solution text;
+ALTER TABLE usermazedata ADD COLUMN solution TEXT;
 
 --- Alterations to add moderating facility
 
-alter table users add column moderator integer default 0;
-alter table published_mazes add column moderated_by references users(username);
+ALTER TABLE users ADD COLUMN moderator INTEGER DEFAULT 0;
+ALTER TABLE published_mazes ADD COLUMN moderated_by REFERENCES users(username);
+
+--- Alterations to add user email
+
+ALTER TABLE users ADD COLUMN email TEXT;
+
+CREATE TABLE email_tokens (
+       token TEXT PRIMARY KEY,
+       user REFERENCES users(username),
+       email TEXT
+);
