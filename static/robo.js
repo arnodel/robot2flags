@@ -780,6 +780,12 @@ var init = function() {
 		}, function(res) {
 		loginform.reset();
                     user = res;
+		    if (!user.email) {
+			var email = prompt("Please enter your email address.  An email will be sent to this address for confirmation. After confirmation, you will be sent notifications to this address.");
+			if (email) {
+			    JR.setUserEmail(email).send();
+			}
+		    }
 		    if (user.username) {
 			roboState.mutate({user: "logged-on"});
 		    }
@@ -806,7 +812,7 @@ var init = function() {
 	    event("setemail-button", "click").
 	    success(function (ev) {
 		ev.preventDefault();
-		var email = prompt("Please enter your email address.  An email will be sent to this address for confirmation.");
+		var email = prompt("Please enter your email address.  An email will be sent to this address for confirmation. After confirmation, you will be sent notifications to this address.", user.email);
 		if (email) {
 		    JR.setUserEmail(email).send();
 		}

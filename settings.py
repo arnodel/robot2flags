@@ -5,3 +5,4 @@ DB_PATH = os.path.join(ROBO_PATH, "robo.db")
 DEBUG = False
 SLOW_RESPONSE = 0.5
 SERVER_METHOD = "wsgi"
+EMAIL_ADDRESS = "arno@marooned.org.uk"
