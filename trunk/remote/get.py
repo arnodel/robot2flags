@@ -21,7 +21,6 @@ def getmaze(id):
 def publishedmazelist():
     user = getattr(web.ctx.session, "username", "anon")
     moderator = getattr(web.ctx.session, "moderator", 0)
-    print "moderator", moderator
     if moderator:
         r = web.ctx.db.where("published_data", user=user)
     else:

@@ -16,6 +16,7 @@ except ImportError:
 import datetime
 from decorators import checkuser
 from maze import Maze, CircuitBoard, run_maze, MazeRunError
+from mailutils import Mail
 
 def hashpwd(pwd):
     return hashlib.md5(pwd).hexdigest()
@@ -28,9 +29,11 @@ def login(username, pwd):
     if r:
         for row in r:
             moderator = row.moderator
+            email = row.email
         web.ctx.session.username = username
-        web.ctx.session.moderator = moderator;
-        return {"username": username, "moderator": moderator}
+        web.ctx.session.moderator = moderator
+        web.ctx.session.user_email = email
+        return {"username": username, "moderator": moderator, "email": email}
     else:
         return {"error": "INCORRECT_CREDENTIALS"}
 
@@ -103,6 +106,15 @@ def publishmaze(id, user):
                       owner=user,
                       date=datetime.datetime.now(),
                       data=row.data)
+    if web.ctx.session.user_email:
+        body = """
+Thank you for submitting your maze entitled '%s' for publication.
+It is now awaiting moderation.  You will be notified as soon as a moderator
+has taken a decision about it.
+""" % row.title
+        subject = "Maze submission: " + row.title
+        mail = Mail(user, web.ctx.session.user_email, subject, body)
+        mail.send()
     return {id: id}
 
 @checkuser
@@ -220,6 +232,9 @@ def moderate(user, mazeid, decision, comment):
             break
     else:
         return {"error": "MAZE_ALREADY_MODERATED"}
+    r = web.ctx.db.where("users", username=row.owner)
+    for owner in r:
+        pass
     maze_info = dict(row)
     if decision == "ACCEPT":
         r = web.ctx.db.update("published_mazes",
@@ -228,34 +243,50 @@ def moderate(user, mazeid, decision, comment):
                 moderated_by=web.ctx.session.username)
     elif decision == "REJECT" or decision == "IMPROVE":
         r = web.ctx.db.delete("published_mazes", 
-                vars={"id": mazeid},
-                where="id=$id")
+                              vars={"id": mazeid},
+                              where="id=$id")
     if not r:
         return {"error": "MAZE_ALREADY_MODERATED"}
+    if owner.email:
+        subject = "Maze moderation: %s" % row.title
+        decision_string = {
+            "ACCEPT": "Congratulations, it has been accepted for publication!",
+            "REJECT": "The moderator decided not to accept it for publication.",
+            "IMPROVE": "The moderator thinks that some changes are needed before it can be published."
+            }
+        body = """
+Your maze has been moderated by %s.  %s
+
+The moderator left this comment:
+----
+%s
+----
+""" % (user, decision_string[decision], comment)
+        mail = Mail(owner.username, owner.email, subject, body)
+        mail.send()
     return {"status": decision}
 
 @checkuser
 def setemail(user, email):
     # Create a randomish token
     token = hashlib.md5(str(time.time())).hexdigest()
-    print "token", token
     web.ctx.db.insert("email_tokens",
                    token=token,
                    user=user,
                    email=email)
     token_addr = web.ctx.home + "/confirm/?token=" + token
-    web.sendmail('arno@marooned.org.uk', [email], '[robot2flags] Request to link email to account',
-"""Hi,
-
-It appears you have requested to link your robot2flags account '%s'
+    subject = "Request to link email to account"
+    body = """
+It appears you have requested to link your robot2flags account
 to this email address (%s).
 
 To confirm, follow this link:
 
     %s
 
-You can safely ignore this message if you have not made this request.
-
-Please email arno@marooned.org.uk if you have problems or queries.
-""" % (user, email, token_addr))
+You can safely ignore this message if you have not made this request
+or if you are not %s.
+""" % (email, token_addr, user)
+    mail = Mail(user, email, subject, body)
+    mail.send()
     return {"status": "OK"}
