@@ -100,6 +100,9 @@ def publishmaze(id, user):
         return {"error": "INCORRECT_MAZE_ID"}
     if row.owner != user:
         return {"error": "USER_DOES_NOT_OWN_MAZE"}
+    r = web.ctx.db.where("published_mazes", data=row.data)
+    for dup in r:
+        return {"error": "DUPLICATE_MAZE"}
     id = web.ctx.db.insert("published_mazes",
                       title=row.title,
                       description=row.description,

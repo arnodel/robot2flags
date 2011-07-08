@@ -1,6 +1,14 @@
 CREATE TABLE users (
        username TEXT PRIMARY KEY,
-       pwd TEXT
+       pwd TEXT,
+       moderator INTEGER DEFAULT 0,
+       email TEXT
+);
+
+CREATE TABLE email_tokens (
+       token TEXT PRIMARY KEY,
+       user REFERENCES users(username),
+       email TEXT
 );
 
 CREATE TABLE mazes (
@@ -20,7 +28,8 @@ CREATE TABLE published_mazes (
        data TEXT,
        lowscore INTEGER,
        sumratings INTEGER,
-       countratings INTEGER
+       countratings INTEGER,
+       moderated_by REFERENCES users(username)
 );
 
 CREATE TABLE usermazedata (
@@ -29,6 +38,7 @@ CREATE TABLE usermazedata (
        maze REFERENCES publishedmazes(id),
        rating INTEGER,
        score INTEGER,
+       solution TEXT,
        CONSTRAINT maze_user_constraint UNIQUE (maze, user)
 );
 
@@ -90,21 +100,4 @@ CREATE VIEW published_data AS
        LEFT JOIN mazeratings r
        ON m.id = r.maze;
 
---- Alterations to add board saving facility
 
-ALTER TABLE usermazedata ADD COLUMN solution TEXT;
-
---- Alterations to add moderating facility
-
-ALTER TABLE users ADD COLUMN moderator INTEGER DEFAULT 0;
-ALTER TABLE published_mazes ADD COLUMN moderated_by REFERENCES users(username);
-
---- Alterations to add user email
-
-ALTER TABLE users ADD COLUMN email TEXT;
-
-CREATE TABLE email_tokens (
-       token TEXT PRIMARY KEY,
-       user REFERENCES users(username),
-       email TEXT
-);
