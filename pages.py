@@ -92,6 +92,8 @@ class jsonfunc:
         return json.dumps(res)
 
 class confirm_email:
+    def __init__(self):
+        web.header("Content-Type", "text/plain; charset=utf-8") 
     def GET(self):
         try:
             token = web.input().token
@@ -106,7 +108,7 @@ class confirm_email:
             r = web.ctx.db.delete("email_tokens",
                                   vars={'token': token},
                                   where="token=$token")
-            return "Robot2Flags\n===========\nUser: %s\nEmail: %s\nThank you for registering your email" % (row.user, row.email)
+            return "Robot2Flags\n===========\n\nUser: %s\nEmail: %s\n\nThank you for registering your email" % (row.user, row.email)
         return "Invalid token"
 
 
