@@ -168,8 +168,9 @@ module.register("robo.maze", function (m) {
 		}
 		obj.x += obj.vx;
 		obj.y += obj.vy;
-		if (obj.x < 0 || obj.x >= this.width || 
-		    obj.y < 0 || obj.y >= this.height) {
+		if (obj.x < 0 || obj.x >= self.width || 
+		    obj.y < 0 || obj.y >= self.height ||
+		    self.getFloorAt(obj) === noFloor) {
 		    obj.kill = true;
 		}
 		obj.dir = (obj.dir + obj.rot + 4) % 4;
@@ -228,10 +229,11 @@ module.register("robo.maze", function (m) {
     };
     
     //
-    // The three floor colors
+    // The three floor colors + the color of no tile
     //
     
-    var colors = ["#FF9999", "#FFFF66", "#9999FF"];
+    var floorColors = ["#FF9999", "#FFFF66", "#9999FF", "#FFFFFF"];
+    var noFloor = 3;
 
     //
     // Objects represent dragging states in the maze editor
@@ -490,7 +492,7 @@ module.register("robo.maze", function (m) {
 		this.drag.vert = 0;
 	    } else {
 		this.drag = this.floor_drag;
-		this.drag.state = (this.editor.maze.getFloorAt(ev._loc) + 1) % 3;
+		this.drag.state = (this.editor.maze.getFloorAt(ev._loc) + 1) % floorColors.length;
 	    }
 	    this.drag.x0 = ev._x;
 	    this.drag.y0 = ev._y;
@@ -635,7 +637,7 @@ module.register("robo.maze", function (m) {
 	},
 	floor: function(ctx, col) {
 	    ctx.save();
-	    ctx.fillStyle = colors[col];
+	    ctx.fillStyle = floorColors[col];
 	    ctx.fillRect(-20, -20, 40, 40);
 	    ctx.restore();
 	},
