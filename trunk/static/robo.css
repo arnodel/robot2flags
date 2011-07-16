@@ -112,10 +112,14 @@ div.maze-details {
 
 .col-maze-title {
     width: 120px;
+    max-width: 120px;
+    overflow: hidden
 }
 
 .col-maze-author, .col-rankings-user {
     width: 100px;
+    max-width: 100px;
+    overflow: hidden;
 }
 
 .col-maze-description {
@@ -123,7 +127,8 @@ div.maze-details {
 
 .col-maze-lowscore, .col-maze-score, .col-maze-avgrating, .col-maze-score, .col-rankings-score, .col-rankings-rank, .col-rankings-points {
     width: 75px;
-    /*text-align: center;*/
+    max-width: 75px;
+    overflow: hidden;
 }
 
 .col-maze-pubdate {
@@ -132,6 +137,8 @@ div.maze-details {
 
 .col-rankings-nsolved {
     width: 250px;
+    max-width: 250px;
+    overflow: hidden;
 }
 
 .row-even, .row-odd {
