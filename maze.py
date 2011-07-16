@@ -36,7 +36,7 @@ except:
             return 'defaultdict(%s, %s)' % (self.default_factory,
                                             dict.__repr__(self))
 
-RED, YELLOW, BLUE = 0, 1, 2
+RED, YELLOW, BLUE, NO_FLOOR = 0, 1, 2, 3
 
 def enum_matrix(mat):
     for y, row in enumerate(mat):
@@ -150,7 +150,8 @@ class Maze(object):
                 self.set_floor_at(obj, obj.painting)
             obj.x += obj.vx
             obj.y += obj.vy
-            if not(0 <= obj.x < self.width and 0 <= obj.y < self.height):
+            if (not(0 <= obj.x < self.width and 0 <= obj.y < self.height) 
+                or self.get_floor(obj) == NO_FLOOR):
                 obj.kill = True
             obj.dir = (obj.dir + obj.rot) % 4
             obj.rest()
