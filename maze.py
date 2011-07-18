@@ -151,7 +151,7 @@ class Maze(object):
             obj.x += obj.vx
             obj.y += obj.vy
             if (not(0 <= obj.x < self.width and 0 <= obj.y < self.height) 
-                or self.get_floor(obj) == NO_FLOOR):
+                or self.get_floor_at(obj) == NO_FLOOR):
                 obj.kill = True
             obj.dir = (obj.dir + obj.rot) % 4
             obj.rest()
