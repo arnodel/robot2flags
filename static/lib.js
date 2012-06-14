@@ -531,10 +531,10 @@ var sameLocation = function (l1, l2) {
 
 var convertTouchEvent = function (ev) {
     var touch, ev_type, mouse_ev;
-    console.debug("got " + ev.type +
+    /* console.debug("got " + ev.type +
 	" tt" + ev.targetTouches.length +
 	" ct" + ev.changedTouches.length
-    );
+    ); */
     touch = ev.targetTouches[0];
     ev.preventDefault();
     switch (ev.type) {
@@ -566,7 +566,7 @@ var convertTouchEvent = function (ev) {
     default:
 	return;
     }
-    console.debug("fake " + ev_type);
+    /* console.debug("fake " + ev_type); */
     mouse_ev = document.createEvent("MouseEvents");
     mouse_ev.initMouseEvent(
 	ev_type, /* type of event */
