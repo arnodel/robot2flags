@@ -535,9 +535,6 @@ var convertTouchEvent = function (ev) {
 	" tt" + ev.targetTouches.length +
 	" ct" + ev.changedTouches.length
     );
-    if (ev.targetTouches.length != 1) {
-	return;
-    }
     touch = ev.targetTouches[0];
     ev.preventDefault();
     switch (ev.type) {
