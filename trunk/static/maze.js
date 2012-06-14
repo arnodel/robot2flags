@@ -688,7 +688,7 @@ module.register("robo.maze", function (m) {
 	    ctx.lineTo(15, -5);
 	    ctx.stroke();
 	}
-    }
+    };
     
     // Need to define this below as it uses the draw object itself!
     m.draw.paint =  function() {
