@@ -249,7 +249,7 @@ module.register("robo.prog", function (m) {
 	    var i;
 	    loop_matrix(this._chips, function (loc, chip) {
 		if (chip.name !== "nochip") {
-		    chipsJSON.push({x:loc.x, y:loc.y, chip:chip.name})
+		    chipsJSON.push({x:loc.x, y:loc.y, chip:chip.name});
 		}
 	    });
 	    transTypes.loop(function (tp) {
@@ -296,7 +296,7 @@ module.register("robo.prog", function (m) {
 	},
 	mousedown: function (ev) {
 	    this.dragging = true;
-	    this.loc = ev._loc
+	    this.loc = ev._loc;
 	    return false;
 	},
 	mousemove: function (ev) {
@@ -425,7 +425,7 @@ module.register("robo.prog", function (m) {
 		return state.maze.getFloorAt(state.obj) === 2 ? "Y" : "N";
 	    }
 	}
-    }
+    };
     
     var chipTool = function (chip) {
 	return function (editor, widget) {
@@ -515,7 +515,7 @@ module.register("robo.prog", function (m) {
 		path = chip.name === "start" ? 
 		    chipShape.circle : chipShape.square;
 	    }
-	    ctx.beginPath()
+	    ctx.beginPath();
 	    path(ctx);
 	    ctx.fill();
 	    ctx.clip();
@@ -677,7 +677,7 @@ module.register("robo.prog", function (m) {
 	    else {
 		widget = canvasSwitch(el, function (ctx) {
 		    ctx.scale(0.5, 0.5);
-		    boardDraw[name](ctx)
+		    boardDraw[name](ctx);
 		});
 	    }
 	    var tool = boardTools[name](editor, widget);
