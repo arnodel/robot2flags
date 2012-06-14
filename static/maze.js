@@ -82,7 +82,7 @@ module.register("robo.maze", function (m) {
 	    var self = this;
 	    this._objects = this._objects.filter(function (obj) {
 		if (sameLocation(obj, loc)) {
-		    self.decCount(obj.name)
+		    self.decCount(obj.name);
 		    return false;
 		}
 		return true;
@@ -102,7 +102,7 @@ module.register("robo.maze", function (m) {
 	    this._objCount[name] = this.getCount(name) + 1;
 	},
 	decCount: function (name) {
-	    var count = this.getCount(name)
+	    var count = this.getCount(name);
 	    if (count) {
 		this._objCount[name] = count - 1;
 	    }
@@ -128,7 +128,7 @@ module.register("robo.maze", function (m) {
 	    var i, tmp;
 	    this._objects.loop(function(obj) {
 		i = (obj.x + obj.vx*t)*1000 + (obj.y + obj.vy*t);
-		obj1 = objectHash[i];
+		var obj1 = objectHash[i];
 		if (obj1) {
 		    if (obj1.name > obj.name) {
 			tmp = obj1;
@@ -150,7 +150,7 @@ module.register("robo.maze", function (m) {
 	    });
 	},
 	killDeadObjects: function() {
-	    var newObjects = []
+	    var newObjects = [];
 	    var objCount = this._objCount = {};
 	    this._objects = this._objects.filter(function(obj) {
 		if (obj.kill) {
@@ -264,10 +264,10 @@ module.register("robo.maze", function (m) {
     
     var floorDrag = {
 	loop: function(action) {
-	    var x0 = Math.min(this.x0, this.x)
-	    var x1 = Math.max(this.x0, this.x)
-	    var y0 = Math.min(this.y0, this.y)
-	    var y1 = Math.max(this.y0, this.y)
+	    var x0 = Math.min(this.x0, this.x);
+	    var x1 = Math.max(this.x0, this.x);
+	    var y0 = Math.min(this.y0, this.y);
+	    var y1 = Math.max(this.y0, this.y);
 	    var x, y;
 	    for (x = x0; x <= x1; x++) {
 		for (y = y0; y <= y1; y++) {
@@ -275,7 +275,7 @@ module.register("robo.maze", function (m) {
 		}
 	    }
 	}
-    }
+    };
     
     //
     // The object that determines the position and rotation of elements of
@@ -321,7 +321,7 @@ module.register("robo.maze", function (m) {
 	    maze.loopFloors(function(loc, col) {
 		self.geo.at(ctx, loc, function(ctx) {
 		    self.draw.floor(ctx, col);
-		})
+		});
 	    });
 	},
 	paint_floor_drag: function(ctx, floor_drag) {
@@ -330,8 +330,8 @@ module.register("robo.maze", function (m) {
 		floor_drag.loop(function(loc) {
 		    self.geo.at(ctx, loc, function(ctx) {
 			self.draw.floor(ctx, floor_drag.state);
-		    })
-		})
+		    });
+		});
 	    };
 	},
 	paint_shadow_walls: function(ctx, maze) {
@@ -380,7 +380,7 @@ module.register("robo.maze", function (m) {
 	    });
 	},
 	paint_maze: function (canvas, maze, t) {
-	    ctx = $(canvas).getContext("2d");
+	    var ctx = $(canvas).getContext("2d");
 	    this.paint_floors(ctx, maze);
 	    this.paint_walls(ctx, maze);
 	    this.paint_objects(ctx, maze, t);
