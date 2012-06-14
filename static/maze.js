@@ -425,6 +425,7 @@ module.register("robo.maze", function (m) {
 	    }
 	    this._canvas = canvas;
 	    this._ctx = canvas.getContext("2d");
+	    touch2mouse(canvas);
 	    this._requests = ["mousemove", 
 			      "mousedown", 
 			      "mouseup", 

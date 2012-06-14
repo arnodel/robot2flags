@@ -510,15 +510,68 @@ module = {
 	var current = window;
 	for (i = 0; i < names.length; i++) {
 	    if (!current.hasOwnProperty(names[i])) {
-		current[names[i]] = {}
+		current[names[i]] = {};
 	    }
 	    current = current[names[i]];
 	}
 	initmodule(current);
     }
-}
+};
 
 var sameLocation = function (l1, l2) {
     return l1.x === l2.x && l1.y === l2.y;
-}
+};
 
+//
+// My attempt to make stuff work on touch devices
+// The idea is to intercept touch event on the maze and circuit
+// canvases and to dispatch faked mouse events instead
+//
+
+
+var convertTouchEvent = function (ev) {
+    var touch, ev_type, mouse_ev;
+    if (ev.targetTouches.length != 1) {
+	return;
+    }
+    touch = ev.targetTouches[0];
+    ev.preventDefault();
+    switch (ev.type) {
+    case 'touchstart':
+	ev_type = 'mousedown';
+	break;
+    case 'touchmove':
+	ev_type = 'mousemove';
+	break;
+    case 'touchend':
+	ev_type = 'mouseup';
+	break;
+    default:
+	return;
+    }
+    mouse_ev = document.createEvent("MouseEvents");
+    mouse_ev.initMouseEvent(
+	ev_type, /* type of event */
+	true, /* can bubble? */
+	true, /* cancelable? */
+	window, /* event view */
+	0, /* mouse click count */
+	touch.screenX, /* event's screen x-coordinate */
+	touch.screenY, /* event's screen y-coordinate */
+	touch.clientX, /* event's client x-coordinate */
+	touch.clientY, /* event's client y-coordinate */
+	ev.ctrlKey, /* control key was pressed? */
+	ev.altKey, /* alt key was pressed? */
+	ev.shiftKey, /* shift key was pressed? */
+	ev.metaKey, /* meta key was pressed? */
+	0, /* mouse button */
+	null /* related target */
+    );
+    this.dispatchEvent(mouse_ev);
+};
+
+var touch2mouse = function (el) {
+    el.addEventListener("touchstart", convertTouchEvent);
+    el.addEventListener("touchmove", convertTouchEvent);
+    el.addEventListener("touchend", convertTouchEvent);
+};
