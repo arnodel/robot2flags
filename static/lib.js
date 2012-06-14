@@ -531,6 +531,10 @@ var sameLocation = function (l1, l2) {
 
 var convertTouchEvent = function (ev) {
     var touch, ev_type, mouse_ev;
+    console.debug("got " + ev.type +
+	" tt" + ev.targetTouches.length +
+	" ct" + ev.changedTouches.length
+    );
     if (ev.targetTouches.length != 1) {
 	return;
     }
@@ -538,17 +542,34 @@ var convertTouchEvent = function (ev) {
     ev.preventDefault();
     switch (ev.type) {
     case 'touchstart':
+	// Make sure only one finger is on the target
+	if (ev.targetTouches.length != 1) {
+	    return;
+	}
+	touch = ev.targetTouches[0];
 	ev_type = 'mousedown';
 	break;
     case 'touchmove':
+	// Make sure only one finger is on the target
+	if (ev.targetTouches.length != 1) {
+	    return;
+	}
+	touch = ev.targetTouches[0];
 	ev_type = 'mousemove';
 	break;
     case 'touchend':
+	// Make sure only one finger is lifted from the target
+	// TODO AND CHECK: check that targetTouches is empty?
+	if (ev.changedTouches.length != 1) {
+	    return;
+	}
+	touch = ev.changedTouches[0];
 	ev_type = 'mouseup';
 	break;
     default:
 	return;
     }
+    console.debug("fake " + ev_type);
     mouse_ev = document.createEvent("MouseEvents");
     mouse_ev.initMouseEvent(
 	ev_type, /* type of event */
