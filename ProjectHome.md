@@ -1,0 +1,3 @@
+Web-based game where players compete to find the most effective way to design a circuit board for a robot so that it collects all the flags.  Players can create their own levels and share them.  The aim of the game is to provide an entertaining (and competitive) way to introduce people to the concepts of programming, and also to provide a challenge to experienced programmers!
+
+Client-side, the game works in the browser (HTML + Canvas + JavaScript).  Server-side, it is implemented in Python (using web.py - database is currently SQLite).
